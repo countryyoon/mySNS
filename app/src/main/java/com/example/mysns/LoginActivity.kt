@@ -67,22 +67,27 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-
-    fun printHashKey() {
-        try {
-            val info: PackageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
-                val md: MessageDigest = MessageDigest.getInstance("SHA")
-                md.update(signature.toByteArray())
-                val hashKey = String(Base64.encode(md.digest(), 0))
-                Log.i("TAG", "printHashKey() Hash Key: $hashKey")
-            }
-        } catch (e: NoSuchAlgorithmException) {
-            Log.e("TAG", "printHashKey()", e)
-        } catch (e: Exception) {
-            Log.e("TAG", "printHashKey()", e)
-        }
+    override fun onStart() {
+        super.onStart()
+        moveMainPage(auth?.currentUser)
     }
+
+
+//    fun printHashKey() {
+//        try {
+//            val info: PackageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+//            for (signature in info.signatures) {
+//                val md: MessageDigest = MessageDigest.getInstance("SHA")
+//                md.update(signature.toByteArray())
+//                val hashKey = String(Base64.encode(md.digest(), 0))
+//                Log.i("TAG", "printHashKey() Hash Key: $hashKey")
+//            }
+//        } catch (e: NoSuchAlgorithmException) {
+//            Log.e("TAG", "printHashKey()", e)
+//        } catch (e: Exception) {
+//            Log.e("TAG", "printHashKey()", e)
+//        }
+//    }
 
 
     fun googleLogin(){
@@ -180,7 +185,7 @@ class LoginActivity : AppCompatActivity() {
     fun moveMainPage(user:FirebaseUser?){
         if(user != null){
             startActivity(Intent(this, MainActivity::class.java))
-
+            finish()
         }
     }
 
