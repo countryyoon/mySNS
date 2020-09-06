@@ -18,8 +18,10 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.mysns.LoginActivity
 import com.example.mysns.MainActivity
 import com.example.mysns.R
+import com.example.mysns.navigation.model.AlarmDTO
 import com.example.mysns.navigation.model.ContentDTO
 import com.example.mysns.navigation.model.FollowDTO
+import com.example.mysns.navigation.util.FcmPush
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
@@ -88,6 +90,21 @@ class UserFragment : Fragment(){
         return fragmentView
     }
 
+    fun followerAlarm(destinationUid : String){
+
+        var alarmDTO = AlarmDTO()
+        alarmDTO.destinationUid = destinationUid
+        alarmDTO.userId = auth?.currentUser?.email
+        alarmDTO.uid = auth?.currentUser?.uid
+        alarmDTO.kind = 2
+        alarmDTO.timestamp = System.currentTimeMillis()
+        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO)
+
+        var message = auth?.currentUser?.email + " " + getString(R.string.alarm_follow)
+        FcmPush.instance.sendMessage(destinationUid, "Yoon", message)
+
+    }
+
     fun getFollowerAndFollowing(){
         firestore?.collection("users")?.document(uid!!)?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
             if(documentSnapshot == null) return@addSnapshotListener
@@ -147,6 +164,7 @@ class UserFragment : Fragment(){
                 followDTO = FollowDTO()
                 followDTO!!.followerCount = 1
                 followDTO!!.followers[currentUserUid!!] = true
+                followerAlarm(uid!!)
 
                 transaction.set(tsDocFollower, followDTO!!)
                 return@runTransaction
@@ -159,6 +177,7 @@ class UserFragment : Fragment(){
             else{
                 followDTO!!.followerCount = followDTO!!.followerCount + 1
                 followDTO!!.followers[currentUserUid!!] = true
+                followerAlarm(uid!!)
             }
             transaction.set(tsDocFollower, followDTO!!)
             return@runTransaction
