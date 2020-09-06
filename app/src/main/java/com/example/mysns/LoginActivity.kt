@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         facebook_login_button.setOnClickListener {
-            facebookLogin()
+            //facebookLogin()
         }
 
         var gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -96,38 +96,38 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    fun facebookLogin(){
-        LoginManager.getInstance()
-            .logInWithReadPermissions(this, Arrays.asList("public_profile", "email"))
-
-        LoginManager.getInstance()
-            .registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
-                override fun onSuccess(result: LoginResult?) {
-                    handleFacebookAccessToken(result!!.accessToken)
-                }
-
-                override fun onCancel() {
-
-                }
-
-                override fun onError(error: FacebookException?) {
-
-                }
-            })
-    }
-
-
-    fun handleFacebookAccessToken(token: AccessToken){
-        var credential = FacebookAuthProvider.getCredential(token?.token!!)
-        auth?.signInWithCredential(credential)?.addOnCompleteListener {
-                task ->
-            if(task.isSuccessful){
-                moveMainPage(task.result!!.user)
-            }else{
-                Toast.makeText(this, task.exception?.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
+//    fun facebookLogin(){
+//        LoginManager.getInstance()
+//            .logInWithReadPermissions(this, Arrays.asList("public_profile", "email"))
+//
+//        LoginManager.getInstance()
+//            .registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
+//                override fun onSuccess(result: LoginResult?) {
+//                    handleFacebookAccessToken(result!!.accessToken)
+//                }
+//
+//                override fun onCancel() {
+//
+//                }
+//
+//                override fun onError(error: FacebookException?) {
+//
+//                }
+//            })
+//    }
+//
+//
+//    fun handleFacebookAccessToken(token: AccessToken){
+//        var credential = FacebookAuthProvider.getCredential(token?.token!!)
+//        auth?.signInWithCredential(credential)?.addOnCompleteListener {
+//                task ->
+//            if(task.isSuccessful){
+//                moveMainPage(task.result!!.user)
+//            }else{
+//                Toast.makeText(this, task.exception?.message, Toast.LENGTH_LONG).show()
+//            }
+//        }
+//    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

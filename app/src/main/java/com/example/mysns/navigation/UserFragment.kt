@@ -78,7 +78,7 @@ class UserFragment : Fragment(){
 
         fragmentView?.account_iv_profile?.setOnClickListener {
             var photoPickerIntent = Intent(Intent.ACTION_PICK)
-            photoPickerIntent.type = "image/"
+            photoPickerIntent.type = "image/*"
             activity?.startActivityForResult(photoPickerIntent, PICK_PROFILE_FROM_ALBUM)
         }
 
@@ -102,7 +102,6 @@ class UserFragment : Fragment(){
                     fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow_cancel)
                     fragmentView?.account_btn_follow_signout?.background?.setColorFilter(ContextCompat.getColor(activity!!, R.color.colorLightGray), PorterDuff.Mode.MULTIPLY)
                 }else{
-                    fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
                     if(uid != currentUserUid){
                         fragmentView?.account_btn_follow_signout?.text = getString(R.string.follow)
                         fragmentView?.account_btn_follow_signout?.background?.colorFilter = null
@@ -114,36 +113,35 @@ class UserFragment : Fragment(){
 
     fun requestFollow(){
         //Save data to my account
-        var tsDocFollowing = firestore!!.collection("users").document(currentUserUid!!)
+        var tsDocFollowing = firestore!!.collection("users")?.document(currentUserUid!!)
         firestore?.runTransaction { transaction ->
-            var followDTO = transaction.get(tsDocFollowing!!).toObject(FollowDTO::class.java)
+            var followDTO = transaction.get(tsDocFollowing).toObject(FollowDTO::class.java)
             if(followDTO == null){
                 followDTO = FollowDTO()
                 followDTO!!.followingCount = 1
-                followDTO!!.followers[uid!!] = true
+                followDTO!!.followings[uid!!] = true
 
                 transaction.set(tsDocFollowing, followDTO)
                 return@runTransaction
             }
 
-            if(followDTO.followings.containsKey(uid)){
+            if(followDTO.followings?.containsKey(uid!!)){
                 //It remove following third person when a third person follow me
                 followDTO?.followingCount = followDTO?.followingCount - 1
-                followDTO?.followers?.remove(uid)
+                followDTO?.followings?.remove(uid)
             }else{
                 //It add following third person when a third person do not follow me
                 followDTO?.followingCount = followDTO?.followingCount + 1
-                followDTO?.followers[uid!!] = true
+                followDTO?.followings[uid!!] = true
             }
             transaction.set(tsDocFollowing, followDTO)
             return@runTransaction
         }
 
         //Save data to third person
-
-        var tsDocFollower = firestore?.collection("users")?.document(uid!!)
+        var tsDocFollower = firestore!!.collection("users")?.document(uid!!)
         firestore?.runTransaction { transaction ->
-            var followDTO = transaction.get(tsDocFollower!!).toObject(FollowDTO::class.java)
+            var followDTO = transaction.get(tsDocFollower).toObject(FollowDTO::class.java)
 
             if(followDTO == null){
                 followDTO = FollowDTO()
@@ -154,10 +152,9 @@ class UserFragment : Fragment(){
                 return@runTransaction
             }
 
-            if(followDTO!!.followers.containsKey(currentUserUid!!)!!){
+            if(followDTO?.followers?.containsKey(currentUserUid!!)!!){
                 followDTO!!.followerCount = followDTO!!.followerCount - 1
-                followDTO?.followers?.remove(currentUserUid!!)
-
+                followDTO!!.followers.remove(currentUserUid!!)
             }
             else{
                 followDTO!!.followerCount = followDTO!!.followerCount + 1
